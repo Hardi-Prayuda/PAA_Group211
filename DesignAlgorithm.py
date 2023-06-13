@@ -102,3 +102,108 @@ def draw_maze():
                     pygame.draw.rect(screen, BLACK, (col * cell_size, row * cell_size, cell_size, cell_size))
                 else:
                     pygame.draw.rect(screen, WHITE, (col * cell_size, row * cell_size, cell_size, cell_size))
+                    
+#fungsi untuk menggambar droid
+def draw_droid(color, row, col):
+    radius = cell_size // 2
+    x = col * cell_size + radius
+    y = row * cell_size + radius
+    pygame.draw.circle(screen, color, (x, y), radius)
+
+#fungsi untuk membuat tampilan menu
+def draw_menu_bar():
+    pygame.draw.rect(screen, MAROON, (screen_width - 280, 0, 300, screen_height))
+
+    font = pygame.font.Font(None, 35)
+    labels = ["MULAI", "ACAK MAP", "ACAK DROID", "POV DROID HIJAU","", "POV DROID MERAH", "TAMBAH DROID", "KURANGI DROID","PAUSE"]
+    # Menambahkan tulisan "Menu Permainan"
+    judul_font = pygame.font.Font(None, 40)
+    judul_text = judul_font.render("MENU GAME", True, WHITE)
+    judul_text_rect = judul_text.get_rect(center=(screen_width - 143, 30))
+    screen.blit(judul_text, judul_text_rect)
+    for i, label in enumerate(labels):
+        button_rect = pygame.Rect(screen_width - 260, 50 + i * 50, 240, 40)
+        pygame.draw.rect(screen, PINK, button_rect)
+        pygame.draw.rect(screen, WHITE, button_rect, 2)
+
+        text = font.render(label, True, WHITE)
+        text_rect = text.get_rect(center=button_rect.center)
+        screen.blit(text, text_rect)
+
+    pov_red_button_rect = pygame.Rect(screen_width - 260, 50 + 5 * 50, 240, 40)
+    if pov_red:
+        pygame.draw.rect(screen, RED, pov_red_button_rect)
+    else:
+        pygame.draw.rect(screen, PINK, pov_red_button_rect)
+    pygame.draw.rect(screen, WHITE, pov_red_button_rect, 2)
+    pov_red_text = font.render("", True, WHITE)
+    pov_red_text_rect = pov_red_text.get_rect(center=pov_red_button_rect.center)
+    screen.blit(pov_red_text, pov_red_text_rect)
+
+    pov_green_button_rect = pygame.Rect(screen_width - 260, 50 + 3 * 50, 240, 40)
+    if pov_green:
+        pygame.draw.rect(screen, GREEN, pov_green_button_rect)
+    else:
+        pygame.draw.rect(screen, PINK, pov_green_button_rect)
+    pygame.draw.rect(screen, WHITE, pov_green_button_rect, 2)
+    pov_green_text = font.render("", True, WHITE)
+    pov_green_text_rect = pov_green_text.get_rect(center=pov_green_button_rect.center)
+    screen.blit(pov_green_text, pov_green_text_rect)
+
+    # Adjust the text position for each button
+    for i, label in enumerate(labels):
+        text = font.render(label, True, WHITE)
+        text_rect = text.get_rect(center=(button_rect.centerx, 50 + i * 50 + 20))
+        screen.blit(text, text_rect)
+
+    pov_red_text_rect = pov_red_text.get_rect(center=(pov_red_button_rect.centerx, 50 + 5 * 50 + 20))
+    screen.blit(pov_red_text, pov_red_text_rect)
+
+    pov_green_text_rect = pov_green_text.get_rect(center=(pov_green_button_rect.centerx, 50 + 3 * 50 + 20))
+    screen.blit(pov_green_text, pov_green_text_rect)
+
+    pygame.draw.rect(screen, PINK, (screen_width - 260, 50 + 4 * 50, 240, 40))
+    pygame.draw.rect(screen, WHITE, (screen_width - 260, 50 + 4 * 50, 240, 40), 2)
+    pygame.draw.rect(screen, ORANGE, (screen_width - 260, 50 + 4 * 50 + 15, 240, 10))
+    slider_pos = screen_width - 170 + int((green_droid_visibility - 2.5) / 3 * 170)
+    pygame.draw.circle(screen, YELLOW, (slider_pos, 50 + 4 * 50 + 20), 12)
+
+#fungsi untuk membuat acak droid
+def randomize_droid(): 
+    global green_droid_row, green_droid_col, red_droid_row, red_droid_col
+
+    while True:
+        green_droid_row = random.randint(0, cell_height - 1)
+        green_droid_col = random.randint(0, cell_width - 1)
+        if maze[green_droid_row][green_droid_col] == 0:
+            break
+
+    while True:
+        red_droid_row = random.randint(0, cell_height - 1)
+        red_droid_col = random.randint(0, cell_width - 1)
+        if maze[red_droid_row][red_droid_col] == 0:
+            break
+
+#fungsi untuk membuat map random
+def randomize_map():
+    global maze, pov_green, pov_red
+
+    pov_green = False
+    pov_red = False
+
+    maze = []
+    for i in range(cell_height):
+        maze.append([1] * cell_width)
+
+    randomize_maze(0, 0)
+    connect_maze(0, 0)
+    randomize_droid()  # Mengacak posisi droid setelah mengacak map
+    
+#fungsi untuk menggerakkan droid merah
+def add_red_droid():
+    global maze, red_droids_count
+
+    if maze[red_droid_row][red_droid_col] == 0 and red_droids_count < 5:
+        if red_droids_count < 5:
+            maze[red_droid_row][red_droid_col] = 1
+            red_droids_count += 1  # Menambahkan jumlah droid merah yang ada 

@@ -1,7 +1,7 @@
 import pygame
 import random
 import time
-
+import threading
 # Inisialisasi Pygame
 pygame.init()
 
@@ -231,14 +231,33 @@ def change_green_droid_visibility(pos):
     percentage = slider_pos / slider_width
     green_droid_visibility = int(percentage * 4) + 2
 
-def move_red_droids():
-    global red_droids
-    for i in range(len(red_droids)):
-        red_droid = red_droids[i]
-        path = bfs_search(red_droid[0], red_droid[1], green_droid_row, green_droid_col)
-        if path:
-            next_step = path[0]
-            red_droids[i] = next_step
+def move_red_droid():
+    global red_droid_row, red_droid_col, green_droid_row, green_droid_col, red_droid_moving
+
+    path = bfs_search(red_droid_row, red_droid_col, green_droid_row, green_droid_col)
+    if path:
+        for step in path:
+            red_droid_row, red_droid_col = step
+            time.sleep(0.2)
+            draw_maze()
+            if not pov_red:
+                draw_droid(GREEN, green_droid_row, green_droid_col)
+            if not pov_green:
+                draw_droid(GREEN, green_droid_row, green_droid_col)
+            for red_droid_pos in red_droids:
+                draw_droid(RED, red_droid_pos[0], red_droid_pos[1])
+            draw_droid(RED, red_droid_row, red_droid_col)
+            draw_menu_bar()
+            move_droid_hijau()
+            pygame.display.update()
+
+            if stop_red_droid:
+                break
+
+        red_droid_moving = False  # Menghentikan gerakan droid merah
+        draw_maze()  # Menggambar maze setelah pergerakan selesai
+
+
     
 def bfs_search(start_row, start_col, target_row, target_col):
     visited = [[False] * cell_width for _ in range(cell_height)]
@@ -297,6 +316,8 @@ red_droids = []  # Initialize the list for red droids
 game_paused = False
 red_droid_moving = False
 green_droid_moving = False
+stop_red_droid = False
+
 
 while running:
     screen.fill(BLACK)
@@ -312,7 +333,7 @@ while running:
 
     draw_droid(RED, red_droid_row, red_droid_col)
     draw_menu_bar()
-    
+    pygame.display.update()  # Mengupdate layar
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -327,23 +348,12 @@ while running:
                     elif button_index == 0:
                         if green_droid_row == red_droid_row and green_droid_col == red_droid_col:
                             continue
-                        path = bfs_search(red_droid_row, red_droid_col, green_droid_row, green_droid_col)
-                        if path:
-                            for step in path:
-                                red_droid_row, red_droid_col = step
-                                time.sleep(0.2)
-                                draw_maze()
-                                if not pov_red:
-                                    draw_droid(GREEN, green_droid_row, green_droid_col)
-                                if not pov_green:
-                                    draw_droid(GREEN, green_droid_row, green_droid_col)
-                                for red_droid_pos in red_droids:
-                                    draw_droid(RED, red_droid_pos[0], red_droid_pos[1])
-                                draw_droid(RED, red_droid_row, red_droid_col)
-                                draw_menu_bar()
-                                move_droid_hijau()
-                                pygame.display.flip()
-                                move_red_droids()
+                        if stop_red_droid:
+                            stop_red_droid = False
+                        elif not red_droid_moving:
+                            red_droid_moving = True
+                            threading.Thread(target=move_red_droid).start()
+
 
                     elif button_index == 2:
                         randomize_droid()  # Mengacak posisi droid setelah mengacak map
@@ -366,18 +376,9 @@ while running:
                     elif button_index == 7:
                         decrease_visible_droids()
                     elif button_index == 8:
-                        game_paused = not game_paused
-                        if game_paused:
-                            red_droid_moving = False
-                            green_droid_moving = False
-                        else:
-                            red_droid_moving= True
-                            green_droid_moving = True
+                        stop_red_droid = True
 
-    if red_droid_moving and not game_paused:
-        move_red_droids()
-    if green_droid_moving and not game_paused:
-        move_droid_hijau()
+
 
     pygame.display.flip()
 

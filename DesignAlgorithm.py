@@ -150,7 +150,7 @@ def draw_menu_bar():
     pov_green_text_rect = pov_green_text.get_rect(center=pov_green_button_rect.center)
     screen.blit(pov_green_text, pov_green_text_rect)
 
-    # Adjust the text position for each button
+    # Sesuaikan posisi teks untuk setiap tombol
     for i, label in enumerate(labels):
         text = font.render(label, True, WHITE)
         text_rect = text.get_rect(center=(button_rect.centerx, 50 + i * 50 + 20))
@@ -283,7 +283,7 @@ def move_additional_red_droid(red_droid_index):
         ):
             return  # Keluar dari fungsi move_additional_red_droid()
 
-        # Additional condition to stop green droid when additional red droid finds it
+        # Kondisi tambahan untuk menghentikan droid hijau saat droid merah tambahan menemukannya
         if (
             red_droids[red_droid_index][0] == green_droid_row
             and red_droids[red_droid_index][1] == green_droid_col
@@ -352,7 +352,7 @@ def move_red_droid():
             green_droid_moving = False  # Menghentikan gerakan droid hijau
             return  # Keluar dari fungsi move_red_droid()
 
-        # Additional condition to stop green droid when red droid finds it
+        # Kondisi tambahan untuk menghentikan droid hijau saat droid merah menemukannya
         if red_droid_row == green_droid_row and red_droid_col == green_droid_col:
             red_droid_moving = False  # Menghentikan gerakan droid merah
             green_droid_moving = False  # Menghentikan gerakan droid hijau
@@ -362,22 +362,22 @@ def move_red_droid():
 def move_green_droid():
     global green_droid_row, green_droid_col, green_droid_moving, red_droid_row, red_droid_col
 
-    # Check if red and green droids have the same position
+    # Periksa apakah droid merah dan hijau memiliki posisi yang sama
     if green_droid_row == red_droid_row and green_droid_col == red_droid_col:
         green_droid_moving = False
         return
 
     neighbors = get_neighbors(green_droid_row, green_droid_col)
 
-    # Filter safe moves that do not coincide with the red droid's position
+    # Saring gerakan aman yang tidak sesuai dengan posisi droid merah
     safe_moves = [(neighbor_row, neighbor_col) for neighbor_row, neighbor_col in neighbors if
                   maze[neighbor_row][neighbor_col] == 0 and (neighbor_row != red_droid_row or neighbor_col != red_droid_col)]
 
-    # Check if there are safe moves available
+    # Periksa apakah ada gerakan aman yang tersedia
     if safe_moves:
         green_droid_row, green_droid_col = random.choice(safe_moves)
 
-        # Check if red and green droids have the same position after moving
+        # Periksa apakah droid merah dan hijau memiliki posisi yang sama setelah bergerak
         if green_droid_row == red_droid_row and green_droid_col == red_droid_col:
             green_droid_moving = False
 
@@ -399,7 +399,7 @@ def bfs_search(start_row, start_col, target_row, target_col):
                     queue.append((neighbor_row, neighbor_col, path + [(neighbor_row, neighbor_col)]))
 
     return None
-
+#fungsi untuk mendapatkan posisi tetangga-tetangga
 def get_neighbors(row, col): 
     neighbors = []
     directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
@@ -421,14 +421,14 @@ def decrease_visible_droids():
         red_droids.pop()
         red_droids_count -= 1
 
-# List to store additional red droid threads
+# Daftar untuk menyimpan utas droid merah tambahan
 additional_red_droid_threads = []
 # Loop utama
 running = True
 pov_red = False
 pov_green = False
 randomize_map()
-red_droids = []  # Initialize the list for red droids
+red_droids = []  # Inisialisasi daftar untuk droid merah
 game_paused = False
 red_droid_moving = False
 green_droid_moving = False
@@ -477,7 +477,6 @@ while running:
                             red_droid_moving = True
                         # Menggerakkan droid merah utama
                         threading.Thread(target=move_red_droid).start()
-
                         # Menggerakkan droid merah tambahan
                         for i in range(len(red_droids)):
                             additional_red_droid_threads.append(
@@ -497,19 +496,19 @@ while running:
                             red_droids[i] = (row, col)
                         pygame.display.flip()  # Perbarui tampilan setelah mengacak posisi droid merah
                     elif button_index == 3:
-                        pov_green = not pov_green
+                        pov_green = not pov_green #pov droid hijau
                     elif button_index == 4:
-                        change_green_droid_visibility(event.pos)
+                        change_green_droid_visibility(event.pos) #slider pov droid hijau
                     elif button_index == 5:
                         pov_red = not pov_red
                         if pov_red:
-                            pov_green = False
+                            pov_green = False #pov droid merah
                     elif button_index == 6:
                         add_droid()  # Tambahkan droid merah baru
                     elif button_index == 7:
-                        decrease_visible_droids()
+                        decrease_visible_droids() #mengurangi droid merah
                     elif button_index == 8:
-                        stop_red_droid = True
+                        stop_red_droid = True #pause game
 
     pygame.display.flip()
 

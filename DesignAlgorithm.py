@@ -253,7 +253,6 @@ def move_red_droid():
             for step in path:
                 red_droid_row, red_droid_col = step
                 time.sleep(0.2)
-                draw_maze()
                 if not pov_red:
                     draw_droid(GREEN, green_droid_row, green_droid_col)
                 if not pov_green:
@@ -264,7 +263,7 @@ def move_red_droid():
                 draw_menu_bar()
                 move_green_droid()
                 pygame.display.update()
-
+                draw_maze()
                 if stop_red_droid or (red_droid_row == green_droid_row and red_droid_col == green_droid_col):
                     red_droid_moving = False  # Menghentikan gerakan droid merah
                     green_droid_moving = False  # Menghentikan gerakan droid hijau

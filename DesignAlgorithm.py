@@ -116,7 +116,7 @@ def draw_menu_bar():
 
     font = pygame.font.Font(None, 35)
     labels = ["MULAI", "ACAK MAP", "ACAK DROID", "POV DROID HIJAU","", "POV DROID MERAH", "TAMBAH DROID", "KURANGI DROID","PAUSE"]
-    # Menambahkan tulisan "Menu Permainan"
+    # Menambahkan tulisan "MENU GAME"
     judul_font = pygame.font.Font(None, 40)
     judul_text = judul_font.render("MENU GAME", True, WHITE)
     judul_text_rect = judul_text.get_rect(center=(screen_width - 143, 30))
@@ -150,7 +150,7 @@ def draw_menu_bar():
     pov_green_text_rect = pov_green_text.get_rect(center=pov_green_button_rect.center)
     screen.blit(pov_green_text, pov_green_text_rect)
 
-    # Adjust the text position for each button
+    # Sesuaikan posisi teks untuk setiap tombol
     for i, label in enumerate(labels):
         text = font.render(label, True, WHITE)
         text_rect = text.get_rect(center=(button_rect.centerx, 50 + i * 50 + 20))
@@ -199,7 +199,7 @@ def randomize_map():
     connect_maze(0, 0)
     randomize_droid()  # Mengacak posisi droid setelah mengacak map
     
-#fungsi untuk menggerakkan droid merah
+#fungsi untuk menambahkan droid merah
 def add_red_droid():
     global maze, red_droids_count
 
@@ -236,6 +236,7 @@ def change_green_droid_visibility(pos):
     slider_pos = pos[0] - (screen_width - 180)
     percentage = slider_pos / slider_width
     green_droid_visibility = int(percentage * 4) + 2
+    
 #fungsi untuk menggerakkan droid merah
 def move_red_droid():
     global red_droid_row, red_droid_col, green_droid_row, green_droid_col, red_droid_moving, green_droid_moving
@@ -261,7 +262,7 @@ def move_red_droid():
                     draw_droid(RED, red_droid_pos[0], red_droid_pos[1])
                 draw_droid(RED, red_droid_row, red_droid_col)
                 draw_menu_bar()
-                move_droid_hijau()
+                move_green_droid()
                 pygame.display.update()
 
                 if stop_red_droid or (red_droid_row == green_droid_row and red_droid_col == green_droid_col):
@@ -296,25 +297,25 @@ def move_red_droid():
             return
 
 #fungsi untuk menggerakkan droid hijau menggunakan algoritma collision detection
-def move_droid_hijau():
+def move_green_droid():
     global green_droid_row, green_droid_col, green_droid_moving, red_droid_row, red_droid_col
 
-    # Check if red and green droids have the same position
+    # Periksa apakah droid merah dan hijau memiliki posisi yang sama
     if green_droid_row == red_droid_row and green_droid_col == red_droid_col:
         green_droid_moving = False
         return
 
     neighbors = get_neighbors(green_droid_row, green_droid_col)
 
-    # Filter safe moves that do not coincide with the red droid's position
+    # Saring gerakan aman yang tidak sesuai dengan posisi droid merah
     safe_moves = [(neighbor_row, neighbor_col) for neighbor_row, neighbor_col in neighbors if
                   maze[neighbor_row][neighbor_col] == 0 and (neighbor_row != red_droid_row or neighbor_col != red_droid_col)]
 
-    # Check if there are safe moves available
+    # Periksa apakah ada gerakan aman yang tersedia
     if safe_moves:
         green_droid_row, green_droid_col = random.choice(safe_moves)
 
-        # Check if red and green droids have the same position after moving
+        # Periksa apakah droid merah dan hijau memiliki posisi yang sama setelah bergerak
         if green_droid_row == red_droid_row and green_droid_col == red_droid_col:
             green_droid_moving = False
 
@@ -334,9 +335,9 @@ def bfs_search(start_row, start_col, target_row, target_col):
             for neighbor_row, neighbor_col in neighbors:
                 if not visited[neighbor_row][neighbor_col]:
                     queue.append((neighbor_row, neighbor_col, path + [(neighbor_row, neighbor_col)]))
-
     return None
 
+#fungsi untuk mendapatkan posisi tetangga dari suatu sel dalam grid
 def get_neighbors(row, col): 
     neighbors = []
     directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
@@ -363,7 +364,7 @@ running = True
 pov_red = False
 pov_green = False
 randomize_map()
-red_droids = []  # Initialize the list for red droids
+red_droids = []  # Inisialisasi daftar untuk droid merah
 game_paused = False
 red_droid_moving = False
 green_droid_moving = False
@@ -392,7 +393,7 @@ while running:
             if event.button == 1:
                 if screen_width - 180 <= event.pos[0] <= screen_width - 20 and 50 <= event.pos[1] <= 550:
                     button_index = (event.pos[1] - 50) // 50
-                    if button_index == 1:
+                    if button_index == 1: #mengacak map sekaligus  mengacak posisi droid
                         randomize_map()
                         for i in range(len(red_droids)):
                             while True:
@@ -403,6 +404,7 @@ while running:
                             red_droids[i] = (row, col)
                         pygame.display.flip()  # Perbarui tampilan setelah mengacak posisi droid merah
                         randomize_droid()
+                        
                     elif button_index == 0:
                         if green_droid_row == red_droid_row and green_droid_col == red_droid_col:
                             continue
@@ -410,7 +412,7 @@ while running:
                             stop_red_droid = False
                         elif not red_droid_moving:
                             red_droid_moving = True
-                        threading.Thread(target=move_red_droid).start()
+                        threading.Thread(target=move_red_droid).start() #game dimulai dengan droid merah mencari droid hijau
                         
                     elif button_index == 2:
                         # Mengacak posisi droid setelah mengacak map
@@ -423,20 +425,26 @@ while running:
                                     break
                             red_droids[i] = (row, col)
                         pygame.display.flip()  # Perbarui tampilan setelah mengacak posisi droid merah
+                        
                     elif button_index == 3:
-                        pov_green = not pov_green
+                        pov_green = not pov_green #pov droid hijau
+                        
                     elif button_index == 4:
-                        change_green_droid_visibility(event.pos)
+                        change_green_droid_visibility(event.pos) #slider pandangan droid hijau
+                        
                     elif button_index == 5:
                         pov_red = not pov_red
                         if pov_red:
-                            pov_green = False
+                            pov_green = False #pov droid merah
+                            
                     elif button_index == 6:
                         add_droid()  # Tambahkan droid merah baru
+                        
                     elif button_index == 7:
-                        decrease_visible_droids()
+                        decrease_visible_droids()#Mengurangi droid merah
+                        
                     elif button_index == 8:
-                        stop_red_droid = True
+                        stop_red_droid = True #pause game
 
     pygame.display.flip()
 

@@ -386,11 +386,11 @@ def bfs_search(start_row, start_col, target_row, target_col):
     visited = [[False] * cell_width for _ in range(cell_height)]
     queue = [(start_row, start_col, [])]
 
-    while queue:
+    while queue: #loop utama dalam algoritma BFS.
         row, col, path = queue.pop(0)
         if row == target_row and col == target_col:
             return path
-
+        #menandai posisi saat ini sebagai telah dikunjungi (visited[row][col] = True) dan menambahkan tetangga-tetangga yang belum dikunjungi ke dalam antrian (queue).
         if not visited[row][col]:
             visited[row][col] = True
             neighbors = get_neighbors(row, col)
